@@ -23,6 +23,14 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class Handlers {
+	static String SQLCommand;
+	static String SQLRequest;
+	
+	public Handlers(String c, String r) {
+		SQLCommand = c;
+		SQLRequest = r;
+	}
+	
 	public static class RootHandler implements HttpHandler {
 
 		@Override
@@ -52,7 +60,14 @@ public class Handlers {
 	}
 
 	public static class EchoGetHandler implements HttpHandler {
-
+		static String SQLCommand;
+		static String SQLRequest;
+		
+		public EchoGetHandler(String c, String r) {
+			SQLCommand = c;
+			SQLRequest = r;
+		}
+		
 		@Override
 		public void handle(HttpExchange he) throws IOException {
 			// parse request
@@ -60,18 +75,26 @@ public class Handlers {
 			URI requestedUri = he.getRequestURI();
 			String query = requestedUri.getRawQuery();
 			parseQuery(query, parameters);
-			// send response
+			
+			System.out.println(query);
+			
+			
+			//This will add the parameters in the URL to the command sent to the SQL server
+			SQLCommand += query += ")}";
+			
+			
 			String response = "";
 			
 			try {
-				Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sakila","root", "password");
+				Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/sakila","root", "password");
 				//insertUser();
 			
 				Statement myStmt = myConn.createStatement();
-				ResultSet myRs = myStmt.executeQuery("select * from customer");
+				ResultSet myRs = myStmt.executeQuery(SQLCommand);
 				
 				while(myRs.next()) {
-					response = myRs.getString("last_name");
+					System.out.println(myRs.getString(SQLRequest));
+					response += myRs.getString(SQLRequest);
 				}
 				
 			} catch (SQLException e) {
@@ -149,4 +172,5 @@ public class Handlers {
 			}
 		}
 	}
+
 }

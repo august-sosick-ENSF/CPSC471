@@ -30,7 +30,19 @@ public class SimpleHttpServer {
 			System.out.println("server started at " + port);
 			server.createContext("/", new Handlers.RootHandler());
 			server.createContext("/echoHeader", new Handlers.EchoHeaderHandler());
-			server.createContext("/echoGet", new Handlers.EchoGetHandler());
+			
+			server.createContext("/testing", new Handlers.EchoGetHandler("Select * from actor", "last_name"));
+			server.createContext("/DeleteReservation", new Handlers.EchoGetHandler("{call DeleteReservation(", "something"));
+			server.createContext("/GetAllReservation", new Handlers.EchoGetHandler("{call GetAllReservation(", "something"));
+			server.createContext("/GetAllVehicle", new Handlers.EchoGetHandler("{call GetAllVehicle(", "something"));
+			server.createContext("/GetCustomer", new Handlers.EchoGetHandler("{call GetCustomer(", "something"));
+			server.createContext("/GetReservation", new Handlers.EchoGetHandler("{call GetReservation(", "something"));
+			server.createContext("/GetVehicle", new Handlers.EchoGetHandler("{call GetVehicle(", "something"));
+			server.createContext("/PostBill", new Handlers.EchoGetHandler("{call PostBill(", "something"));
+			server.createContext("/PostReservation", new Handlers.EchoGetHandler("{call PostReservation(", "something"));
+			server.createContext("/PutEmployee", new Handlers.EchoGetHandler("{call PutEmployee(", "something"));
+			server.createContext("/PutVehicle", new Handlers.EchoGetHandler("{call PutVehicle(", "something"));
+			
 			server.createContext("/echoPost", new Handlers.EchoPostHandler());
 			server.setExecutor(null);
 			server.start();
