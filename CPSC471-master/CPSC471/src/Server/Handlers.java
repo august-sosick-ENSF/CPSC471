@@ -29,6 +29,7 @@ public class Handlers {
 	public Handlers(String c, String r) {
 		SQLCommand = c;
 		SQLRequest = r;
+		
 	}
 	
 	public static class RootHandler implements HttpHandler {
@@ -62,10 +63,13 @@ public class Handlers {
 	public static class EchoGetHandler implements HttpHandler {
 		static String SQLCommand;
 		static String SQLRequest;
+		static int resultSize;
 		
-		public EchoGetHandler(String c, String r) {
+		
+		public EchoGetHandler(String c, String r, int s) {
 			SQLCommand = c;
 			SQLRequest = r;
+			resultSize = s + 2;
 		}
 		
 		@Override
@@ -77,24 +81,40 @@ public class Handlers {
 			parseQuery(query, parameters);
 			
 			System.out.println(query);
+			System.out.println(parameters);
 			
+			String[] data = query.split(",");
 			
 			//This will add the parameters in the URL to the command sent to the SQL server
-			SQLCommand += query += ")}";
+			if(!data[1].equals("-1")) {
+				SQLCommand = "call " + data[0] + "(" + data[1] + ")";
+			}
+			else {
+				SQLCommand = "call " + data[0] + "()";
+			}
 			
 			
+			resultSize = Integer.parseInt(data[2]) + 1;
+			
+			
+			System.out.println(SQLCommand);
 			String response = "";
 			
 			try {
-				Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/sakila","root", "password");
+				Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/mydb","root", "password");
 				//insertUser();
 			
 				Statement myStmt = myConn.createStatement();
 				ResultSet myRs = myStmt.executeQuery(SQLCommand);
 				
+				int i = 1;
+				
 				while(myRs.next()) {
-					System.out.println(myRs.getString(SQLRequest));
-					response += myRs.getString(SQLRequest);
+					while(i<resultSize) {
+					System.out.println(myRs.getString(i));
+					response += myRs.getString(i) +", ";
+					i++;
+					}
 				}
 				
 			} catch (SQLException e) {
@@ -102,8 +122,8 @@ public class Handlers {
 			}
 			
 			
-			for (String key : parameters.keySet())
-				response += key + " = " + parameters.get(key) + "\n";
+			//for (String key : parameters.keySet())
+				//response += key + " = " + parameters.get(key) + "\n";
 			he.sendResponseHeaders(200, response.length());
 			OutputStream os = he.getResponseBody();
 			os.write(response.toString().getBytes());
