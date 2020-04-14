@@ -23,15 +23,8 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class Handlers {
-	static String SQLCommand;
-	static String SQLRequest;
-	
-	public Handlers(String c, String r) {
-		SQLCommand = c;
-		SQLRequest = r;
-		
-	}
-	
+
+
 	public static class RootHandler implements HttpHandler {
 
 		@Override
@@ -61,20 +54,23 @@ public class Handlers {
 	}
 
 	public static class EchoGetHandler implements HttpHandler {
-		static String SQLCommand;
-		static String SQLRequest;
-		static int resultSize;
 		
 		
-		public EchoGetHandler(String c, String r, int s) {
-			SQLCommand = c;
-			SQLRequest = r;
-			resultSize = s + 2;
+		
+		public EchoGetHandler() {
 		}
 		
 		@Override
 		public void handle(HttpExchange he) throws IOException {
+			boolean is_return = true;
+			
 			// parse request
+			String SQLCommand;
+			String SQLRequest;
+			int resultSize;
+			String response = "";
+			
+			
 			Map<String, Object> parameters = new HashMap<String, Object>();
 			URI requestedUri = he.getRequestURI();
 			String query = requestedUri.getRawQuery();
@@ -86,31 +82,131 @@ public class Handlers {
 			String[] data = query.split(",");
 			
 			//This will add the parameters in the URL to the command sent to the SQL server
-			if(!data[1].equals("-1")) {
-				SQLCommand = "call " + data[0] + "(" + data[1] + ")";
+			
+			
+			if(query.contains("All")) {
+				System.out.println("testtttt");
+				String ans = "", temp = null;
+				Connection myConn = null;
+				try {
+					myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/mydb","root", "password");
+				} catch (SQLException e) {e.printStackTrace();}
+				
+				int i = 1;
+				System.out.println();
+				
+				while(temp != "") {
+					temp = "";
+					temp = multiple(data[0], i, Integer.parseInt(data[2]), myConn);
+					ans += temp + "\n";
+					i++;
+				}
+				response = ans;
+				System.out.println(ans);
 			}
 			else {
-				SQLCommand = "call " + data[0] + "()";
+				if(query.contains("PostReservation")) {
+					
+					SQLCommand = "call " + data[0] + "(" + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7] + ")";
+					System.out.println(SQLCommand);
+					is_return = false;
+				}
+				else if (query.contains("PostBill")) {
+					SQLCommand = "call " + data[0] + "(" + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7] + "," + data[8] 
+						      + "," + data[9] + ")";
+					is_return = false;
+				}
+				else if (query.contains("PutEmployee")) {
+					
+					SQLCommand = "call " + data[0] + "(" + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + ")";
+					is_return = false;
+				}
+				else if (query.contains("PutVehicle")) {
+					SQLCommand = "call " + data[0] + "(" + data[1] + "," + data[2] + "," + data[3] + "," + data[4] + "," + data[5] + "," + data[6] + "," + data[7] + "," + data[8] 
+							      + "," + data[9] + "," + data[10] + "," + data[11] + "," + data[12] + ")";
+					is_return = false;
+				}
+				else if (query.contains("DeleteReservation")) {
+					SQLCommand = "call " + data[0] + "(" + data[1] + ")";
+					is_return = false;
+					System.out.println(SQLCommand);
+				}
+				else if(!data[1].equals("-1")) {
+					SQLCommand = "call " + data[0] + "(" + data[1] + ")";
+				}
+				else {
+					SQLCommand = "call " + data[0] + "()";
+				}
+				
+				
+				resultSize = Integer.parseInt(data[2]) + 1;
+				
+				
+				System.out.println(SQLCommand);
+				
+				
+				try {
+					Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/mydb","root", "password");
+					//insertUser();
+				
+					Statement myStmt = myConn.createStatement();
+					ResultSet myRs = myStmt.executeQuery(SQLCommand);
+					
+					if(is_return) {		//only runs if return is expected
+					
+						int i = 1;
+					
+						while(myRs.next()) {
+							while(i<resultSize) {
+							System.out.println(myRs.getString(i));
+							response += myRs.getString(i) +", ";
+							i++;
+							}
+						}
+					}
+					
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
+			if(!is_return) {
+				response = "success";
+			}
+			//for (String key : parameters.keySet())
+				//response += key + " = " + parameters.get(key) + "\n";
+			he.sendResponseHeaders(200, response.length());
+			OutputStream os = he.getResponseBody();
+			os.write(response.toString().getBytes());
+			os.close();
 			
-			
-			resultSize = Integer.parseInt(data[2]) + 1;
-			
-			
-			System.out.println(SQLCommand);
+		}
+		
+		//Backend for the collect all info stored procedures.
+		public String multiple(String SQLCommand, int row, int resultSize, Connection myConn ) {
 			String response = "";
-			
+
 			try {
-				Connection myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.2:3306/mydb","root", "password");
+				if(SQLCommand.contains("GetAllReservation")) {
+					SQLCommand = "GR";
+				}
+				else {
+					SQLCommand = "GV";
+				}
 				//insertUser();
 			
+				//SQLCommand = "call " + SQLCommand + "(" + myRs.getRowId(row) +")";
+				SQLCommand = "call " + SQLCommand + "(" + row +")";
+				System.out.println(SQLCommand);
+				
+				
 				Statement myStmt = myConn.createStatement();
 				ResultSet myRs = myStmt.executeQuery(SQLCommand);
 				
+		
 				int i = 1;
 				
 				while(myRs.next()) {
-					while(i<resultSize) {
+					while(i<resultSize + 1) {
 					System.out.println(myRs.getString(i));
 					response += myRs.getString(i) +", ";
 					i++;
@@ -121,13 +217,7 @@ public class Handlers {
 				e.printStackTrace();
 			}
 			
-			
-			//for (String key : parameters.keySet())
-				//response += key + " = " + parameters.get(key) + "\n";
-			he.sendResponseHeaders(200, response.length());
-			OutputStream os = he.getResponseBody();
-			os.write(response.toString().getBytes());
-			os.close();
+			return response;
 		}
 
 	}

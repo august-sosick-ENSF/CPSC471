@@ -43,7 +43,7 @@ public class SimpleHttpServer {
 			server.createContext("/GetReservation", new Handlers.EchoGetHandler("call GetReservation(", "something",4));
 			*/
 			
-			server.createContext("/APICall", new Handlers.EchoGetHandler("call GetVehicle(", "vehicle_ID, booking_ID",4));
+			server.createContext("/APICall", new Handlers.EchoGetHandler());
 			/*
 			server.createContext("/PostBill", new Handlers.EchoGetHandler("{call PostBill(", "something"));
 			server.createContext("/PostReservation", new Handlers.EchoGetHandler("{call PostReservation(", "something"));
