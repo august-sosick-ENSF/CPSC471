@@ -1,41 +1,16 @@
 package Server;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
+/***
+ * The purpose of this class is to initalize an HTTP server at a specific port (will be running on your localhost).
+ * The library for the Java HTTP server is present in the lib file with the name http-20070405.jar. 
+ * A summary of that package is avaliable here : https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/package-summary.html
+ * @author August
+ *
+ */
 public class Main {
 	public static int port = 9023;
 	public static void main(String[] args) {
-//		// start http server
-//		SimpleHttpServer httpServer = new SimpleHttpServer();
-//		httpServer.Start(port);
-		
-		// start https server
-		SimpleHttpServer httpsServer = new SimpleHttpServer();
-		httpsServer.Start(port);
-		
-//		System.out.println(System.getProperty("user.dir"));
-//		System.out.println(Main.class.getClassLoader().getResource("").getPath());
-		
+		SimpleHttpServer httpServer = new SimpleHttpServer();	//Create HTTP server
+		httpServer.Start(port);									//Start at specific port
 	}
 }
 
-/*		try {
-Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sakila","root", "password");
-//insertUser();
-
-Statement myStmt = myConn.createStatement();
-ResultSet myRs = myStmt.executeQuery("select * from customer");
-
-while(myRs.next()) {
-	System.out.println(myRs.getString("last_name"));
-}
-
-} catch (SQLException e) {
-e.printStackTrace();
-}
-
-}*/

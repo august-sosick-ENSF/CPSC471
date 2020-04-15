@@ -1,5 +1,4 @@
 package Server;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,6 +18,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+/**
+ * The purpose of this class is to further initilze the server with the necessary requirements.
+ * @author August
+ *
+ */
 public class SimpleHttpServer {
 	private int port;
 	private HttpServer server;
@@ -26,40 +30,15 @@ public class SimpleHttpServer {
 	public void Start(int port) {
 		try {
 			this.port = port;
-			server = HttpServer.create(new InetSocketAddress(port), 0);
-			System.out.println("server started at " + port);
-			server.createContext("/", new Handlers.RootHandler());
-			server.createContext("/echoHeader", new Handlers.EchoHeaderHandler());
-			
-			//server.createContext("/testing", new Handlers.EchoGetHandler("Select * from Customer", "email"));
-			/*
-			server.createContext("/DeleteReservation", new Handlers.EchoGetHandler("{call DeleteReservation(", "something"));
-			server.createContext("/GetAllReservation", new Handlers.EchoGetHandler("{call GetAllReservation(", "something"));
-			
-			server.createContext("/GetAllVehicle", new Handlers.EchoGetHandler("call GetAllVehicle(", "something",4));
-			
-			server.createContext("/GetCustomer", new Handlers.EchoGetHandler("call GetCustomer(", "something",3));
-			
-			server.createContext("/GetReservation", new Handlers.EchoGetHandler("call GetReservation(", "something",4));
-			*/
-			
-			server.createContext("/APICall", new Handlers.EchoGetHandler());
-			/*
-			server.createContext("/PostBill", new Handlers.EchoGetHandler("{call PostBill(", "something"));
-			server.createContext("/PostReservation", new Handlers.EchoGetHandler("{call PostReservation(", "something"));
-			server.createContext("/PutEmployee", new Handlers.EchoGetHandler("{call PutEmployee(", "something"));
-			server.createContext("/PutVehicle", new Handlers.EchoGetHandler("{call PutVehicle(", "something"));
-			*/
-			server.createContext("/echoPost", new Handlers.EchoPostHandler());
-			server.setExecutor(null);
-			server.start();
+			server = HttpServer.create(new InetSocketAddress(port), 0);								//Create the new socket address
+			System.out.println("Your server is running on localhost, port: " + port);				//Say which port the server is running on in the command line
+
+			server.createContext("/APICall", new APIHandler());						//Create section of the URL that will specify we are using an API call
+																									//An example here would be http://localhost/APICall/putwhateverfunctionyouwanthere
+			server.setExecutor(null);																//Executor is for multi-threading
+			server.start();																			//start the server
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void Stop() {
-		server.stop(0);
-		System.out.println("server stopped");
 	}
 }
