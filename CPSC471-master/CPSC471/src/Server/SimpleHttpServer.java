@@ -20,7 +20,7 @@ import com.sun.net.httpserver.HttpServer;
 
 /**
  * The purpose of this class is to further initilze the server with the necessary requirements.
- * @author August
+ * @author CPSC Team
  *
  */
 public class SimpleHttpServer {

@@ -39,7 +39,6 @@ public class APIHandler implements HttpHandler {
 		String response = "";	//response you will send back to the user using the API
 		
 		//This code will parse the information given in the URL. Query will contain what comes after /APICall
-		Map<String, Object> parameters = new HashMap<String, Object>();
 		URI requestedUri = HE.getRequestURI();
 		String query = requestedUri.getRawQuery();
 		
@@ -50,8 +49,10 @@ public class APIHandler implements HttpHandler {
 		} catch (SQLException e) {e.printStackTrace();}
 		
 
-		String[] data = query.split(",");	//split along ',' so we can see the specific procedure and the arguments
+		String[] data;	//split along ',' so we can see the specific procedure and the arguments
+		data = parseURL(query);
 		
+		System.out.println(data[1]);
 		
 		if(query.contains("All")) {			//If the query contains ALL meaning it is "GetAllReservation" or "GetAllVehicle" it will run this code below
 			String ans = "", temp = null;
@@ -62,7 +63,7 @@ public class APIHandler implements HttpHandler {
 			//i.e when the response from multiple = ""
 			while(temp != "") {
 				temp = "";
-				temp = multiple(data[0], i, Integer.parseInt(data[2]), myConn); //data[0] = name of procedure, arg2 = number of columns desired, myConn is connection object for database
+				temp = multiple(data[0], i, Integer.parseInt(data[1]), myConn); //data[0] = name of procedure, arg2 = number of columns desired, myConn is connection object for database
 				ans += temp + "\n";
 				i++;
 			}
@@ -96,6 +97,7 @@ public class APIHandler implements HttpHandler {
 			}
 			else if (query.contains("DeleteReservation")) {
 				SQLCommand = "call " + data[0] + "(" + data[1] + ")";
+				System.out.println(SQLCommand);
 				is_return = false;
 			}
 			//These two last if statements allow a user to input -1 as the second argument in their URL to specify if there will be no arguments passed to the SQL stored procedure
@@ -108,17 +110,18 @@ public class APIHandler implements HttpHandler {
 			}
 			
 			
-			resultSize = Integer.parseInt(data[2]) + 1;		//result size is the number of columns you want back. In testing it was determined you needed to add one to recieve
-															//back your actual desired amount
+			
 			
 			try {
 				Statement myStmt = myConn.createStatement();		//these two functions will send the SQLCommand created above to the DBMS to use its stored procedure
 				ResultSet myRs = myStmt.executeQuery(SQLCommand);
 				
 				//This section below if for recieving information back from the DBMS, if none was required it is skiped via this if statement
-				if(is_return) {		
-					int i = 1;	//these acts as a cursor to indicate which column the while loop is currently on
-				
+				if(is_return) {	
+					int i = 1;										//these acts as a cursor to indicate which column the while loop is currently on
+					resultSize = Integer.parseInt(data[2]) + 1;		//result size is the number of columns you want back. In testing it was determined you needed to add one to recieve
+																	//back your actual desired amount
+					
 					//This statement will run through the response from the query sent from above to capture the data in each column (column is tracked by var 'i') and then add that to the response string  
 					while(myRs.next()) {								
 						while(i<resultSize) {
@@ -185,6 +188,21 @@ public class APIHandler implements HttpHandler {
 			e.printStackTrace();
 		}
 		
+		return response;
+	}
+	
+	/**
+	 * This function will take the relevant information out of the URL and format it into the response array
+	 * @param query
+	 * @return String[]: response
+	 */
+	public String [] parseURL(String query) {
+		String response[];
+		response = query.split("&");
+		//This loop splits the url by the "=" to extract the data that will be sent to the SQL server above
+		for(int i = 1; i<response.length; i++) {
+			response[i] = (response[i].split("="))[1];
+		}
 		return response;
 	}
 }
