@@ -51,6 +51,7 @@ public class APIHandler implements HttpHandler {
 		String[] data = new String[1];	//split along ',' so we can see the specific procedure and the arguments
 		String[] JSONBody = null;
 		
+		System.out.println("1");
 		
 		//This code will parse the information given in the URL. Query will contain what comes after /APICall
 		URI requestedURL = HE.getRequestURI();
@@ -71,13 +72,14 @@ public class APIHandler implements HttpHandler {
 		//If there is no request, then thee are no arguments to be parsed, which is what the function contain here does
 		if(!noRequest)
 			StoredFunction = parseRequest(requestedURL, RequestMethod);
-
+		
+		System.out.println(RequestMethod);
 		//Will only search the JSON body object if it is not a Get function as get functions have all their arguments in the URL and don't need a body
-		if(!RequestMethod.contentEquals("get")) { 
+		if(!RequestMethod.contentEquals("get") && !RequestMethod.contentEquals("delete")) { 
 			 JSONBody = parseBody(HE,data[0]);			//returns the body of the request formattted correctly
 		} 
 		
-		
+	
 		if(requestedURL.toString().contains("All")) {			//If the query contains ALL meaning it is "GetAllReservation" or "GetAllVehicle" it will run this code below
 			String ans = "", temp = null;
 			int i = 1;
@@ -129,7 +131,6 @@ public class APIHandler implements HttpHandler {
 				is_return = false;
 			}
 			else if (URL.contains("Reservation") && RequestMethod.contains("delete")) {
-				data = JSONBody;
 				SQLCommand = "call " + StoredFunction + "(" + data[0] + ")";
 				System.out.println(SQLCommand);
 				is_return = false;
@@ -242,13 +243,13 @@ public class APIHandler implements HttpHandler {
 			int u = 0;
 		
 			formatted = "[\n";
-			for(int x = 0; x<7; x++) {
+			for(int x = 0; x<8; x++) {
 				int t = x;
-				x = x*8;
-				formatted += ("{\n" + "\"vehicle_ID\":\"" + split[1] + "\", \n" + "\"booking_ID\":\"" + split[2] + "\", \n"  + "\"make\":\"" + split[3] + "\", \n"  + "\"model\":\"" + split[4] + "\", \n" 
-						+ "\"colour\":\"" + split[5] + "\", \n" + "\"type_ID\":\"" + split[6] + "\", \n" + "\"insurance_ID\":\"" + split[7] + "\", \n" + "\"insurer_name\":\"" + split[8] + "\", \n" 
-						+ "\"cost_per_day\":\"" + split[9] + "\", \n"  + "\"coverage_type\":\"" + split[10] + "\", \n"  + "\"cur_location\":\"" + split[11] + "\", \n"  + "\"damage_history\":\"" + split[12] + "\", \n" 
-								+ "\"current_condition\":\"" + split[13] + "\", \n"  + "\"maintenance_record\":\"" + split[14] + "\", \n"  + "\"rental_record\":\"" + split[15] + "\", \n"  + "\"row\":\"" + split[0] + "\", \n"
+				x = x*17;
+				formatted += ("{\n" + "\"vehicle_ID\":\"" + split[x+1] + "\", \n" + "\"booking_ID\":\"" + split[x+2] + "\", \n"  + "\"make\":\"" + split[x+3] + "\", \n"  + "\"model\":\"" + split[x+4] + "\", \n" 
+						+ "\"colour\":\"" + split[x+5] + "\", \n" + "\"type_ID\":\"" + split[x+6] + "\", \n" + "\"insurance_ID\":\"" + split[x+7] + "\", \n" + "\"insurer_name\":\"" + split[x+8] + "\", \n" 
+						+ "\"cost_per_day\":\"" + split[x+9] + "\", \n"  + "\"coverage_type\":\"" + split[x+10] + "\", \n"  + "\"cur_location\":\"" + split[x+11] + "\", \n"  + "\"damage_history\":\"" + split[x+12] + "\", \n" 
+								+ "\"current_condition\":\"" + split[x+13] + "\", \n"  + "\"maintenance_record\":\"" + split[x+14] + "\", \n"  + "\"rental_record\":\"" + split[x+15] + "\", \n"  + "\"row\":\"" + split[x] + "\", \n"
 										+ "},\n"); 
 				x = t;
 			}
