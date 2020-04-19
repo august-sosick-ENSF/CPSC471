@@ -20,6 +20,8 @@ import com.sun.net.httpserver.HttpServer;
 
 /**
  * The purpose of this class is to further initilze the server with the necessary requirements.
+ * Each URL that will be used is specified here so that an API Handler can be created for it.
+ * Those API handlers are mutlithreaded.
  * @author CPSC Team
  *
  */
@@ -33,8 +35,16 @@ public class SimpleHttpServer {
 			server = HttpServer.create(new InetSocketAddress(port), 0);								//Create the new socket address
 			System.out.println("Your server is running on localhost, port: " + port);				//Say which port the server is running on in the command line
 
-			server.createContext("/APICall", new APIHandler());						//Create section of the URL that will specify we are using an API call
-																									//An example here would be http://localhost/APICall/putwhateverfunctionyouwanthere
+			server.createContext("/APICall/Vehicle", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/Reservation", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/Customer", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/AllReservation", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/AllVehicle", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/Employee", new APIHandler());						//Create section of the URL that will specify we are using an API call
+			server.createContext("/APICall/Bill", new APIHandler());						//Create section of the URL that will specify we are using an API call
+		
+			
+																	//An example here would be http://localhost/APICall/putwhateverfunctionyouwanthere
 			server.setExecutor(null);																//Executor is for multi-threading
 			server.start();																			//start the server
 		} catch (IOException e) {
